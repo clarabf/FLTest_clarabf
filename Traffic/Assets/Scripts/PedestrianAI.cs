@@ -1,18 +1,20 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 
-public class Follow : MonoBehaviour
+public class PedestrianAI : MonoBehaviour
 {
     // Start is called before the first frame update
     [SerializeField] private Transform path;
     //[SerializeField] private Transform[] target;
     [SerializeField] private float speed;
+    [SerializeField] private bool personCrossing = false;
 
     private List<Transform> nodes;
     private int currentNode;
-    private bool personCrossing = false;
-
+    private GameObject currentCW;
+    
     void Start()
     {
         Transform[] pathTransforms = path.GetComponentsInChildren<Transform>();
@@ -43,24 +45,29 @@ public class Follow : MonoBehaviour
 
     void OnCollisionEnter(Collision col)
     {
-        if (transform.name == "SimplePerson")
+        //GameObject prefab = PrefabUtility.GetCorrespondingObjectFromSource(col.gameObject);
+        //Debug.Log("Name co: " + col.collider.name + " Name go: " + col.gameObject.name);
+        //if (prefab != null) Debug.Log("Prefab name: " + prefab.name);
+        if (col.gameObject.tag == "Crosswalk")
         {
-            if (col.collider.name.Contains("CW"))
+            if (personCrossing == false)
             {
-                Debug.Log("************person crossing!");
+                Debug.Log("************person crossing " + col.collider.name);
                 personCrossing = true;
-            }
-            else
-            {
-                personCrossing = false; //the person is in the street,
+                currentCW = col.gameObject;
+                currentCW.GetComponent<CWScript>().PeopleIsCrossing(personCrossing);
             }
         }
-        else if (transform.name == "SimpleCar")
+        else
         {
-            if (col.collider.name.Contains("CW"))
+            if (col.collider.name.Contains("Street"))
             {
-                Debug.Log("************COCHEEE: " + col.collider.name + " personCrossing: " + personCrossing);
-                if (personCrossing) Debug.Log("************I HAVE TO STOOOOP!");
+                if (personCrossing == true)
+                {
+                    Debug.Log("************person reachs " + col.collider.name);
+                    personCrossing = false;
+                    currentCW.GetComponent<CWScript>().PeopleIsCrossing(personCrossing);
+                }
             }
         }
     }

@@ -1,8 +1,9 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Follow : MonoBehaviour
+public class CarAI : MonoBehaviour
 {
     // Start is called before the first frame update
     [SerializeField] private Transform path;
@@ -12,6 +13,7 @@ public class Follow : MonoBehaviour
     private List<Transform> nodes;
     private int currentNode;
     private bool personCrossing = false;
+    private GameObject pedestrian;
 
     void Start()
     {
@@ -25,6 +27,12 @@ public class Follow : MonoBehaviour
                 nodes.Add(pathT);
             }
         }
+      
+    }
+
+    private GameObject FindGameObjectWithTag()
+    {
+        throw new NotImplementedException();
     }
 
     void FixedUpdate()
@@ -43,25 +51,10 @@ public class Follow : MonoBehaviour
 
     void OnCollisionEnter(Collision col)
     {
-        if (transform.name == "SimplePerson")
+        if (col.gameObject.tag == "Crosswalk")
         {
-            if (col.collider.name.Contains("CW"))
-            {
-                Debug.Log("************person crossing!");
-                personCrossing = true;
-            }
-            else
-            {
-                personCrossing = false; //the person is in the street,
-            }
-        }
-        else if (transform.name == "SimpleCar")
-        {
-            if (col.collider.name.Contains("CW"))
-            {
-                Debug.Log("************COCHEEE: " + col.collider.name + " personCrossing: " + personCrossing);
-                if (personCrossing) Debug.Log("************I HAVE TO STOOOOP!");
-            }
+            bool someoneInCW = col.gameObject.GetComponent<CWScript>().IsPeopleCrossing();
+            if (someoneInCW) Debug.Log("I HAVE TO STOOOOOOOOOOOOOOOP AT " + col.collider.name);
         }
     }
 }
