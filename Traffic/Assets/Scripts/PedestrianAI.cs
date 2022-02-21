@@ -45,9 +45,6 @@ public class PedestrianAI : MonoBehaviour
 
     void OnCollisionEnter(Collision col)
     {
-        //GameObject prefab = PrefabUtility.GetCorrespondingObjectFromSource(col.gameObject);
-        //Debug.Log("Name co: " + col.collider.name + " Name go: " + col.gameObject.name);
-        //if (prefab != null) Debug.Log("Prefab name: " + prefab.name);
         if (col.gameObject.tag == "Crosswalk")
         {
             if (personCrossing == false)

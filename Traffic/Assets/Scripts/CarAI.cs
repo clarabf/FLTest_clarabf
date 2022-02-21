@@ -12,8 +12,7 @@ public class CarAI : MonoBehaviour
 
     private List<Transform> nodes;
     private int currentNode;
-    private bool personCrossing = false;
-    private GameObject pedestrian;
+    private float previousSpeed;
 
     void Start()
     {
@@ -28,11 +27,6 @@ public class CarAI : MonoBehaviour
             }
         }
       
-    }
-
-    private GameObject FindGameObjectWithTag()
-    {
-        throw new NotImplementedException();
     }
 
     void FixedUpdate()
@@ -53,8 +47,20 @@ public class CarAI : MonoBehaviour
     {
         if (col.gameObject.tag == "Crosswalk")
         {
-            bool someoneInCW = col.gameObject.GetComponent<CWScript>().IsPeopleCrossing();
-            if (someoneInCW) Debug.Log("I HAVE TO STOOOOOOOOOOOOOOOP AT " + col.collider.name);
+            GameObject currentCW = col.gameObject;
+            bool someoneInCW = currentCW.GetComponent<CWScript>().IsPeopleCrossing();
+            if (someoneInCW)
+            {
+                Debug.Log(gameObject.name + " HAS TO STOOOOOOOOOOOOOOOP AT " + col.collider.name);
+                previousSpeed = speed;
+                speed = 0;
+                currentCW.GetComponent<CWScript>().AddCarToQueue(gameObject.name);
+            }
         }
+    }
+
+    public void ResetSpeed()
+    {
+        speed = previousSpeed;
     }
 }
