@@ -13,6 +13,9 @@ public class CarAI : MonoBehaviour
     private List<Transform> nodes;
     private int currentNode;
     private float previousSpeed;
+    private float stopTimer = Mathf.Infinity;
+    private float stopDuration = 2;
+    private bool inStop = false;
 
     void Start()
     {
@@ -26,11 +29,11 @@ public class CarAI : MonoBehaviour
                 nodes.Add(pathT);
             }
         }
-      
     }
 
     void FixedUpdate()
     {
+        //Car position
         //if (transform.position != nodes[currentNode].position)
         if (Vector3.Distance(transform.position, nodes[currentNode].position) > 0.3f)
         {
@@ -41,21 +44,49 @@ public class CarAI : MonoBehaviour
         {
             currentNode = (currentNode + 1) % nodes.Count;
         }
+
+        //Waiting at the stop
+        if (inStop) 
+        {
+            if (stopTimer < stopDuration)
+            {
+                Debug.Log("STOP!: " + stopTimer);
+                stopTimer += Time.deltaTime;
+            }
+            else
+            {
+                Debug.Log("PUEDO SEGUIR!: " + stopTimer);
+                inStop = false;
+                speed = previousSpeed;
+                stopTimer = Mathf.Infinity;
+            }
+        }
     }
 
     void OnCollisionEnter(Collision col)
     {
-        if (col.gameObject.tag == "Crosswalk")
+        GameObject currentCW = col.gameObject;
+        switch (col.gameObject.tag)
         {
-            GameObject currentCW = col.gameObject;
-            bool someoneInCW = currentCW.GetComponent<CWScript>().IsPeopleCrossing();
-            if (someoneInCW)
-            {
-                Debug.Log(gameObject.name + " HAS TO STOOOOOOOOOOOOOOOP AT " + col.collider.name);
+            case "Crosswalk":
+                bool someoneInCW = currentCW.GetComponent<CWScript>().IsPeopleCrossing();
+                if (someoneInCW)
+                {
+                    previousSpeed = speed;
+                    speed = 0;
+                    currentCW.GetComponent<CWScript>().AddCarToQueue(gameObject.name);
+                }
+                break;
+            case "Stop":
+                Debug.Log("He llegado a <" + currentCW.name + ">");
                 previousSpeed = speed;
                 speed = 0;
-                currentCW.GetComponent<CWScript>().AddCarToQueue(gameObject.name);
-            }
+                stopTimer = 0;
+                inStop = true;
+                break;
+            case "Car":
+
+                break;
         }
     }
 

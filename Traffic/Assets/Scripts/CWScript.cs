@@ -5,13 +5,14 @@ using UnityEngine;
 
 public class CWScript : MonoBehaviour
 {
-    // Start is called before the first frame update
-    public bool peopleCrossing = false;
-    private List<string> carsQueue;
+    public List<int> peopleCrossingIds;
+    public List<string> carsQueue;
 
+    // Start is called before the first frame update
     void Start()
     {
         carsQueue = new List<string>();
+        peopleCrossingIds = new List<int>();
     }
 
     // Update is called once per frame
@@ -22,13 +23,18 @@ public class CWScript : MonoBehaviour
 
     public bool IsPeopleCrossing()
     {
-        return peopleCrossing;
+        return peopleCrossingIds.Count != 0;
     }
 
-    public void PeopleIsCrossing(bool crossingOrNot)
+    public void AddPedestrian(int pedestrian_id)
     {
-        peopleCrossing = crossingOrNot;
-        if (!peopleCrossing)
+        peopleCrossingIds.Add(pedestrian_id);
+    }
+
+    public void RemovePedestrian(int pedestrian_id)
+    {
+        peopleCrossingIds.Remove(pedestrian_id);
+        if (!IsPeopleCrossing())
         {
             if (carsQueue.Count > 0)
             {

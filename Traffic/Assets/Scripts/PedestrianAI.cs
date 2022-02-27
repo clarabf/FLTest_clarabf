@@ -9,7 +9,7 @@ public class PedestrianAI : MonoBehaviour
     [SerializeField] private Transform path;
     //[SerializeField] private Transform[] target;
     [SerializeField] private float speed;
-    [SerializeField] private bool personCrossing = false;
+    private bool personCrossing = false;
 
     private List<Transform> nodes;
     private int currentNode;
@@ -49,10 +49,10 @@ public class PedestrianAI : MonoBehaviour
         {
             if (personCrossing == false)
             {
-                Debug.Log("************person crossing " + col.collider.name);
+                //Debug.Log("************person crossing " + col.collider.name);
                 personCrossing = true;
                 currentCW = col.gameObject;
-                currentCW.GetComponent<CWScript>().PeopleIsCrossing(personCrossing);
+                currentCW.GetComponent<CWScript>().AddPedestrian(gameObject.GetInstanceID());
             }
         }
         else
@@ -61,9 +61,9 @@ public class PedestrianAI : MonoBehaviour
             {
                 if (personCrossing == true)
                 {
-                    Debug.Log("************person reachs " + col.collider.name);
+                    //Debug.Log("************person reachs " + col.collider.name);
                     personCrossing = false;
-                    currentCW.GetComponent<CWScript>().PeopleIsCrossing(personCrossing);
+                    currentCW.GetComponent<CWScript>().RemovePedestrian(gameObject.GetInstanceID());
                 }
             }
         }
