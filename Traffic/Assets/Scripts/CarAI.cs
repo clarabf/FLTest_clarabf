@@ -15,7 +15,12 @@ public class CarAI : MonoBehaviour
     private float previousSpeed;
     private float stopTimer = Mathf.Infinity;
     private float stopDuration = 2;
-    private bool inStop = false;
+    private GameObject otherCar;
+
+    private bool onStop = false;
+    private bool onCW = false;
+    private bool carInFront = false;
+    
 
     void Start()
     {
@@ -45,18 +50,27 @@ public class CarAI : MonoBehaviour
             currentNode = (currentNode + 1) % nodes.Count;
         }
 
+        if (carInFront)
+        {
+            if (Vector3.Distance(transform.position, otherCar.GetComponent<Rigidbody>().position) > 0.3f)
+            {
+                carInFront = false;
+                speed = previousSpeed;
+            }
+        }
+
         //Waiting at the stop
-        if (inStop) 
+        if (onStop) 
         {
             if (stopTimer < stopDuration)
             {
-                Debug.Log("STOP!: " + stopTimer);
+                //Debug.Log("STOP!: " + stopTimer);
                 stopTimer += Time.deltaTime;
             }
             else
             {
-                Debug.Log("PUEDO SEGUIR!: " + stopTimer);
-                inStop = false;
+                //Debug.Log("PUEDO SEGUIR!: " + stopTimer);
+                onStop = false;
                 speed = previousSpeed;
                 stopTimer = Mathf.Infinity;
             }
@@ -66,6 +80,7 @@ public class CarAI : MonoBehaviour
     void OnCollisionEnter(Collision col)
     {
         GameObject currentCW = col.gameObject;
+        Debug.Log(gameObject.name + " hits " + currentCW.name + "(" + col.collider.name + ")");
         switch (col.gameObject.tag)
         {
             case "Crosswalk":
@@ -74,6 +89,7 @@ public class CarAI : MonoBehaviour
                 {
                     previousSpeed = speed;
                     speed = 0;
+                    onCW = true;
                     currentCW.GetComponent<CWScript>().AddCarToQueue(gameObject.name);
                 }
                 break;
@@ -82,10 +98,17 @@ public class CarAI : MonoBehaviour
                 previousSpeed = speed;
                 speed = 0;
                 stopTimer = 0;
-                inStop = true;
+                onStop = true;
                 break;
             case "Car":
-
+                //Avoid case of car stopped colliding with Bounding Box of the car behind
+                if (!onCW && !onStop)
+                {
+                    carInFront = true;
+                    otherCar = col.gameObject;
+                    previousSpeed = speed;
+                    speed = 0;
+                }
                 break;
         }
     }
@@ -93,5 +116,6 @@ public class CarAI : MonoBehaviour
     public void ResetSpeed()
     {
         speed = previousSpeed;
+        onCW = false;
     }
 }
