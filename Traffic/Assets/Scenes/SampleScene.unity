@@ -137,7 +137,7 @@ GameObject:
   - component: {fileID: 115257607}
   m_Layer: 0
   m_Name: StreetR
-  m_TagString: Untagged
+  m_TagString: Street
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1361,7 +1361,7 @@ GameObject:
   - component: {fileID: 1820601537}
   m_Layer: 0
   m_Name: StreetL
-  m_TagString: Untagged
+  m_TagString: Street
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

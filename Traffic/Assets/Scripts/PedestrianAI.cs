@@ -57,7 +57,7 @@ public class PedestrianAI : MonoBehaviour
         }
         else
         {
-            if (col.collider.name.Contains("Street"))
+            if (col.gameObject.tag == "Street")
             {
                 if (personCrossing == true)
                 {

@@ -5,8 +5,8 @@ using UnityEngine;
 
 public class CWScript : MonoBehaviour
 {
-    public List<int> peopleCrossingIds;
-    public List<string> carsQueue;
+    private List<int> peopleCrossingIds;
+    private List<string> carsQueue;
 
     // Start is called before the first frame update
     void Start()

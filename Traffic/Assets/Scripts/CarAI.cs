@@ -101,7 +101,7 @@ public class CarAI : MonoBehaviour
                 }
                 break;
             case "Stop":
-                Debug.Log(gameObject.name +  " ha llegado a <" + collisionObect.name + ">");
+                //Debug.Log(gameObject.name +  " has stopped at <" + collisionObect.name + ">");
                 previousSpeed = speed;
                 speed = 0;
                 stopTimer = 0;
