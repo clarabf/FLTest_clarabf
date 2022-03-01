@@ -20,7 +20,6 @@ public class CarAI : MonoBehaviour
     private bool onStop = false;
     private bool onCW = false;
     private bool carInFront = false;
-    
 
     void Start()
     {
@@ -39,7 +38,6 @@ public class CarAI : MonoBehaviour
     void FixedUpdate()
     {
         //Car position
-        //if (transform.position != nodes[currentNode].position)
         if (Vector3.Distance(transform.position, nodes[currentNode].position) > 0.3f)
         {
             Vector3 pos = Vector3.MoveTowards(transform.position, nodes[currentNode].position, speed * Time.deltaTime);
@@ -54,8 +52,17 @@ public class CarAI : MonoBehaviour
         {
             if (Vector3.Distance(transform.position, otherCar.GetComponent<Rigidbody>().position) > 0.3f)
             {
+                //Debug.Log(gameObject.name + " LET'S GO!");
+                
+                //The car can move again because the car in front of it has stopped waiting                
                 carInFront = false;
                 speed = previousSpeed;
+                
+                bool carOnCW = otherCar.GetComponent<CarAI>().isOnCW();
+                bool carOnStop = otherCar.GetComponent<CarAI>().isOnStop();
+
+                if (!carOnCW) onCW = false;
+                if (!carOnStop) onStop = false;
             }
         }
 
@@ -64,12 +71,12 @@ public class CarAI : MonoBehaviour
         {
             if (stopTimer < stopDuration)
             {
-                //Debug.Log("STOP!: " + stopTimer);
+                //Debug.Log(gameObject.name + " STOP!: " + stopTimer);
                 stopTimer += Time.deltaTime;
             }
             else
             {
-                //Debug.Log("PUEDO SEGUIR!: " + stopTimer);
+                //Debug.Log(gameObject.name + " I CAN DRIVE!: " + stopTimer);
                 onStop = false;
                 speed = previousSpeed;
                 stopTimer = Mathf.Infinity;
@@ -79,43 +86,66 @@ public class CarAI : MonoBehaviour
 
     void OnCollisionEnter(Collision col)
     {
-        GameObject currentCW = col.gameObject;
-        Debug.Log(gameObject.name + " hits " + currentCW.name + "(" + col.collider.name + ")");
+        GameObject collisionObect = col.gameObject;
+        //Debug.Log(gameObject.name + " hits " + currentCW.name + "(" + col.collider.name + ")");
         switch (col.gameObject.tag)
         {
             case "Crosswalk":
-                bool someoneInCW = currentCW.GetComponent<CWScript>().IsPeopleCrossing();
+                bool someoneInCW = collisionObect.GetComponent<CWScript>().IsPeopleCrossing();
                 if (someoneInCW)
                 {
                     previousSpeed = speed;
                     speed = 0;
                     onCW = true;
-                    currentCW.GetComponent<CWScript>().AddCarToQueue(gameObject.name);
+                    collisionObect.GetComponent<CWScript>().AddCarToQueue(gameObject.name);
                 }
                 break;
             case "Stop":
-                Debug.Log("He llegado a <" + currentCW.name + ">");
+                Debug.Log(gameObject.name +  " ha llegado a <" + collisionObect.name + ">");
                 previousSpeed = speed;
                 speed = 0;
                 stopTimer = 0;
                 onStop = true;
                 break;
             case "Car":
-                //Avoid case of car stopped colliding with Bounding Box of the car behind
+                //If the car is not waiting already and has collided with another car
                 if (!onCW && !onStop)
                 {
-                    carInFront = true;
-                    otherCar = col.gameObject;
-                    previousSpeed = speed;
-                    speed = 0;
+                    //Debug.Log(gameObject.name + " has collided with <" + currentCW.name + ">");
+
+                    //Then it checks if the car with whom it has collided is waiting at stop or crosswalk
+                    bool carOnCW = collisionObect.GetComponent<CarAI>().isOnCW();
+                    bool carOnStop = collisionObect.GetComponent<CarAI>().isOnStop();
+
+                    //The new car has to wait as well
+                    if (carOnCW) onCW = true;
+                    if (carOnStop) onStop = true;
+
+                    if (onCW || onStop)
+                    {
+                        //Debug.Log(gameObject.name + " wait..." + " onCW: " + onCW + " onStop: " + onStop);
+                        carInFront = true;
+                        otherCar = collisionObect;
+                        previousSpeed = speed;
+                        speed = 0;
+                    }
                 }
                 break;
         }
     }
-
     public void ResetSpeed()
     {
         speed = previousSpeed;
         onCW = false;
+    }
+
+    public bool isOnStop()
+    {
+        return onStop;
+    }
+
+    public bool isOnCW()
+    {
+        return onCW;
     }
 }
